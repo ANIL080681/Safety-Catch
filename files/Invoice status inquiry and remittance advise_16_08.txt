@@ -1,0 +1,424 @@
+// ==================================================================================
+// ==                                 CONFIGURATION                                  ==
+// ==================================================================================
+
+// --- SPREADSHEET CONFIGURATION ---
+const SPREADSHEET_ID = '1IXS7nV-4Gf-WMOd7dd7pflfA2dWNf2JTmZYp1ceH4oU';
+const SHEET_NAME = 'Invoice Data';
+const LOG_SPREADSHEET_ID = '1eOrDhsvH2pEzXs8ch5Vb80-5NTrWkePXS4p1Vf3S9Eo'; 
+const LOG_SHEET_NAME = 'Reply Log';
+
+// --- GMAIL & NOTIFICATION CONFIGURATION ---
+const GMAIL_SEARCH_LABEL = 'INV_PAYMT_INQ';
+const GMAIL_REPLIED_LABEL = 'INV_PAYMT_Replied';
+const ADMIN_EMAIL = 'anil.agarwal33@gmail.com';
+
+// --- GEMINI AI API KEY ---
+const GEMINI_API_KEY = 'AIzaSyCTslbsFtpoSCFbaXl_34SuVM819l_X210';
+
+// --- GOOGLE CLOUD & DOCUMENT AI CONFIGURATION ---
+const GCP_PROJECT_ID = 'genuine-flight-467208-p2';
+const DOC_AI_LOCATION = 'us';
+const DOC_AI_INVOICE_PARSER_ID = '5e7bb086be91f0d0';
+const DOC_AI_CUSTOM_PROCESSOR_ID = '6f705723de7a8fbf';
+const SUPPORTED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/tiff'];
+
+// --- SERVICE ACCOUNT CREDENTIALS (for Document AI) ---
+const SERVICE_ACCOUNT_CREDS = {
+  "type": "service_account",
+  "project_id": "genuine-flight-467208-p2",
+  "private_key_id": "649b12c63f4ca701c3adb00176078313762413c6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQClCENxmtVv5wBe\nX3T8WqWlM3o2/YhJxo7IMUAiKPg+VyB+Yo00kVr3VqqvtmbAbMnCPUlFEkbmGLcO\nYMTu/vyze2mttYU4oXMBYfDT5luLNHtfMA6Tno/UpZT/j4ppYVTZapy86N4OFO3t\n8kK9T+sg36JQAxVqImr70RwsWl+xbupmDmFnOaTrVewsRhZ93NPbR4+deF03mK9l\n8bdas53BzTIjO5iPyxrLJmrJgVvjvMWXt6AGMx4vKqIFoEavjUGnSBIONqDzyj7F\n4nr3MTWIAMJAImFndtoQw332DZ6098yX+w0BonCu3KoC9B2tmvJsvkaXvz+x6Qq2\nC9Qa0ZDJAgMBAAECggEAAur8PEo7S1z3e/OunxagNqVMHCRL8Ff/Jsl+I4x7ZSjH\ntYxbCEqoo9Znsq8kLnNN9u37+WlrEP7vX6T03m/qOmcsdWqP9jIelS/s4OZCCJpP\nMx3nqBMF4oHh+knIrffPVv/EUS/B21hh45LkvLGoy95AYa9IReXhY93s5Fjdt8ah\nv1jr2kofNBh9nPu6Tz9eaNOjjnaYrHIiXTaySNrQPCxF0O6hBY61w8JqqQeLNtc+\np/Qqq4iZMWI9bn7/3T8lrOYarJFKvVaxUCn0AtWUYufpKxTCybLf6uzOUggDsvW3\nCv+AQiKyIwcffhC1crEqX7GWTbLUHDGYFQDSnd5oPQKBgQDTgmLZFHNbdAJOgxK/\nnm5GrU5FLe+l7QMXzTJt9Isx/2rRlNUZnrGuFCav2Nb/s3pVdJqBW+Wmap3VYW+d\nON2tanzvY5akleVEhgqLGccw5KHklmIXGJUAffh0KBj8BehCI1Y148qGg34U0Lr+\nExXzL68zd/3M4JdEvCVA1jN2lQKBgQDHvx/cq9BlXYuvc4zcX7I7LBXQ9UWiWV+s\nLTKAO6my9M8vvb8K+AHhQs5e4WBZyKdKz87UKxlxzoGu7f7DXkVUfVpkFBH4zZag\nCDiqJ2emTiMkzbkHUhrg9qiE89NyB7oYr580ifFC4LGXh5E3J4Bl8h4nVL/HUU1L\nOrVylWqoZQKBgDHbEiHJSEfOWJzZGJpCZgwS3dhAs7SQ4aHCpJh2hDkM08kDJBgd\n6BP4fAYHPuaXD8cE7UaAuuk3SGz7wqt0tAwkhb6H4wJ4ssosLmALe4By5BZVvFll\nWfn7t4zpxrnhSpYMbk3Vm++JHzcY3Hr3VL02CD5BknmwlveEweM+mnLhAoGAXvGC\nxJJKYRQg5EmpR8qY3jVrPUKIUc3nguCM45T4aZ6hqJCpcR5HTnpBu6mm8aZFlnLG\nXeUKmCTPUYXAlb6Gd82JnI5JqJiYIwMlZAOM6ei0HbdHXqpxKkM0ANYgyE/R7g/0\nPbXfnqlM4LjIlo3JIyv9lzZaXfRQKBUE0C0jYF0CgYBBQXSKazQ7QAUGqnD79NAo\na1Lc5bfODUfW3qSSQvHEJJPYF01ZvKuQDa/kUS5DVHFhIDDOPyt66aJrIKlv+ENK\n2lBptGoX7VZWq0wlv8zXoSPULoiB+RJpGnGeh562GTahtqy6hXof1mOYF0scW1Dj\nZgeRpgf3uxapo2sc2e+39w==\n-----END PRIVATE KEY-----\n",
+  "client_email": "myocrsa@genuine-flight-467208-p2.iam.gserviceaccount.com",
+  "client_id": "112726344372394737554",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/myocrsa%40genuine-flight-467208-p2.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+};
+
+// ==================================================================================
+// ==                                  MAIN FUNCTION                                   ==
+// ==================================================================================
+
+function run() {
+  Logger.log('--- Script Execution Started ---');
+  try {
+    processNewInquiries();
+  } catch (e) {
+    Logger.log(`[CRITICAL ERROR] Script aborted: ${e.message}\nStack: ${e.stack}`);
+    sendErrorNotification(e);
+  }
+  Logger.log('--- Script Execution Finished ---');
+}
+
+/**
+ * Processes new inquiries that have not been replied to yet and ignores follow-ups.
+ */
+function processNewInquiries() {
+  const query = `label:${GMAIL_SEARCH_LABEL} -label:${GMAIL_REPLIED_LABEL} is:unread`;
+  const threads = GmailApp.search(query);
+  Logger.log(`--- Processing new inquiry queue. Found ${threads.length} emails. ---`);
+  if (threads.length === 0) return;
+
+  const invoiceDataMap = getInvoiceDataMap();
+  const docAiAccessToken = getDocAiService().getAccessToken();
+  const repliedLabel = getOrCreateLabel(GMAIL_REPLIED_LABEL);
+
+  threads.forEach(thread => {
+    // Reverted to always get the first message of the thread to ignore replies.
+    const message = thread.getMessages()[0]; 
+    const senderEmail = message.getFrom().match(/[\w\.\-]+@[\w\.\-]+/)[0].toLowerCase();
+    const subject = message.getSubject();
+    const body = message.getPlainBody();
+    Logger.log(`\nProcessing email from ${senderEmail} with subject: "${subject}"`);
+
+    const invoiceNumbers = [...new Set([...extractInvoicesWithGemini(subject, body), ...extractInvoicesWithDocAI(message.getAttachments(), docAiAccessToken)])];
+    Logger.log(`Found distinct invoice numbers: [${invoiceNumbers.join(', ')}]`);
+
+    if (invoiceNumbers.length > 0) {
+      const statusResults = invoiceNumbers.map(invNum => {
+        const matchData = findBestMatch(invNum, invoiceDataMap);
+        if (matchData && matchData.vendorEmail.toLowerCase() === senderEmail) {
+          return { found: true, requestedNumber: invNum, ...matchData };
+        }
+        return { found: false, requestedNumber: invNum };
+      });
+      
+      sendInquiryReply(message, statusResults);
+      
+      logReplyDetails({
+        timestamp: new Date(),
+        vendorEmail: senderEmail,
+        subject: subject,
+        foundInvoices: statusResults.filter(r => r.found).map(r => r.invoiceNumber),
+        notFoundInvoices: statusResults.filter(r => !r.found).map(r => r.requestedNumber),
+        threadUrl: thread.getPermalink()
+      });
+    } else {
+      Logger.log('No invoice numbers found in the email. Skipping reply.');
+    }
+    
+    thread.addLabel(repliedLabel); // Apply the replied label to prevent reprocessing.
+    thread.markRead();
+  });
+}
+
+// ==================================================================================
+// ==                                 AI & DATA HELPERS                                ==
+// ==================================================================================
+
+function calculateSimilarity(s1, s2) {
+  let longer = s1; let shorter = s2;
+  if (s1.length < s2.length) { longer = s2; shorter = s1; }
+  const longerLength = longer.length;
+  if (longerLength === 0) return 100.0;
+  return ((longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)) * 100;
+}
+
+function editDistance(s1, s2) {
+  s1 = s1.toLowerCase(); s2 = s2.toLowerCase();
+  const costs = [];
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) costs[j] = j;
+      else if (j > 0) {
+        let newValue = costs[j - 1];
+        if (s1.charAt(i - 1) !== s2.charAt(j - 1)) newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+        costs[j - 1] = lastValue;
+        lastValue = newValue;
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
+}
+
+function findBestMatch(requestedInvNum, dataMap) {
+  const cleanedReqInv = requestedInvNum.trim().toUpperCase();
+  let bestMatch = null;
+  let highestSimilarity = 0;
+  for (const [sheetInvKey, sheetInvData] of dataMap.entries()) {
+    const similarity = calculateSimilarity(cleanedReqInv, sheetInvKey);
+    if (similarity > highestSimilarity) {
+      highestSimilarity = similarity;
+      bestMatch = sheetInvData;
+    }
+  }
+  if (highestSimilarity >= 90) {
+    Logger.log(`Best match for "${requestedInvNum}" is "${bestMatch.invoiceNumber}" with ${highestSimilarity.toFixed(2)}% similarity.`);
+    return bestMatch;
+  }
+  return null;
+}
+
+function extractInvoicesWithGemini(subject, body) {
+  if (!subject && !body) return [];
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+  const prompt = `Your task is to act as an expert invoice number extractor. Analyze the following email subject and body and extract all invoice numbers.\n\n- Invoice numbers are alphanumeric codes, often containing letters, numbers, and hyphens (e.g., "INV-123", "SIN-202401-0166-00", "CPJ00301").\n- Invoice numbers can also be listed plainly, often one per line, without any keywords.\n- Return the result ONLY as a valid JSON object with a single key "invoice_numbers" which is an array of strings.\n- If no invoice numbers are found, return {"invoice_numbers": []}.\n\nEXAMPLES:\n- Input Text: "Subject: what is status of AT2025-001 Body: Hi, please check."\n- Output: {"invoice_numbers": ["AT2025-001"]}\n\n- Input Text: "Subject: inquiry Body: please check invoices\\nCPJ00301\\nCCN00007643533463\\nSIN-202401-0166-00"\n- Output: {"invoice_numbers": ["CPJ00301", "CCN00007643533463", "SIN-202401-0166-00"]}\n\n- Input Text: "Subject: Meeting update Body: Hi team, our meeting is rescheduled."\n- Output: {"invoice_numbers": []}\n\nNow, perform the extraction on the following text:\n---\nSubject: ${subject}\nBody: ${body.substring(0, 4000)}\n---`;
+  const payload = { "contents": [{ "role": "user", "parts": [{ "text": prompt }] }] };
+  const options = { 'method': 'post', 'contentType': 'application/json', 'payload': JSON.stringify(payload), 'muteHttpExceptions': true };
+  try {
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() === 200) {
+      const jsonResponse = JSON.parse(response.getContentText());
+      const rawText = jsonResponse.candidates[0].content.parts[0].text;
+      const startIndex = rawText.indexOf('{');
+      const endIndex = rawText.lastIndexOf('}');
+      if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+        const jsonString = rawText.substring(startIndex, endIndex + 1);
+        return JSON.parse(jsonString).invoice_numbers || [];
+      }
+    }
+  } catch (e) {
+    Logger.log(`Gemini extraction failed: ${e.message}`);
+  }
+  return [];
+}
+
+function extractInvoicesWithDocAI(attachments, accessToken) {
+  let extractedNumbers = [];
+  const processorsToRun = [
+    { id: DOC_AI_CUSTOM_PROCESSOR_ID, type: 'invoice_id' },
+    { id: DOC_AI_INVOICE_PARSER_ID, type: 'invoice_id' }
+  ];
+  attachments.forEach(att => {
+    if (!SUPPORTED_MIME_TYPES.includes(att.getContentType())) return;
+    processorsToRun.forEach(processor => {
+      if (!processor.id || processor.id.includes('PASTE_YOUR')) return;
+      Logger.log(`Calling Document AI Processor: ${processor.id} for attachment: ${att.getName()}`);
+      const endpoint = `https://documentai.googleapis.com/v1/projects/${GCP_PROJECT_ID}/locations/${DOC_AI_LOCATION}/processors/${processor.id}:process`;
+      const requestBody = { "rawDocument": { "content": Utilities.base64Encode(att.getBytes()), "mimeType": att.getContentType() } };
+      const options = { 'method': 'post', 'contentType': 'application/json', 'headers': { 'Authorization': `Bearer ${accessToken}` }, 'payload': JSON.stringify(requestBody), 'muteHttpExceptions': true };
+      try {
+        const response = UrlFetchApp.fetch(endpoint, options);
+        const responseText = response.getContentText();
+        if (response.getResponseCode() === 200) {
+          const doc = JSON.parse(responseText).document;
+          if (doc && doc.entities) {
+            doc.entities.forEach(entity => {
+              if (entity.type === processor.type) extractedNumbers.push(entity.mentionText);
+            });
+          }
+        }
+      } catch (e) {
+        Logger.log(`DocAI failed for "${att.getName()}": ${e.message}`);
+      }
+    });
+  });
+  return extractedNumbers;
+}
+
+function getInvoiceDataMap() {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
+  const data = sheet.getDataRange().getValues();
+  const headers = data.shift().map(h => h.toString().trim());
+  const invoiceCol = headers.indexOf('Invoice Number');
+  const dueDateCol = headers.indexOf('Due Date');
+  const paymentDateCol = headers.indexOf('payment date');
+  const amountPaidCol = headers.indexOf('Amount Paid');
+  const vendorEmailCol = headers.indexOf('Vendor Email');
+  const paymentStatusCol = headers.indexOf('Payment Status');
+  const vendorNameCol = headers.indexOf('Vendor Name');
+  if (invoiceCol === -1 || vendorEmailCol === -1 || paymentStatusCol === -1 || vendorNameCol === -1) {
+    throw new Error('Required column not found.');
+  }
+  const dataMap = new Map();
+  data.forEach(row => {
+    const invoiceNumber = String(row[invoiceCol]).trim().toUpperCase();
+    if (invoiceNumber) {
+      dataMap.set(invoiceNumber, {
+        invoiceNumber: String(row[invoiceCol]).trim(),
+        dueDate: row[dueDateCol] || 'N/A',
+        paymentDate: row[paymentDateCol] || 'N/A',
+        amountPaid: row[amountPaidCol] || 'N/A',
+        vendorEmail: String(row[vendorEmailCol]).trim(),
+        paymentStatus: String(row[paymentStatusCol]).trim().toUpperCase(),
+        vendorName: row[vendorNameCol] || 'Valued Vendor'
+      });
+    }
+  });
+  return dataMap;
+}
+
+// ==================================================================================
+// ==                         EMAIL, PDF & UTILITY HELPERS                             ==
+// ==================================================================================
+
+function logReplyDetails(details) {
+  try {
+    const ss = SpreadsheetApp.openById(LOG_SPREADSHEET_ID);
+    let sheet = ss.getSheetByName(LOG_SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(LOG_SHEET_NAME);
+      sheet.appendRow(['Timestamp', 'Vendor Email', 'Original Subject', 'Found Invoices', 'Not Found Invoices', 'Link to Email']);
+      sheet.setFrozenRows(1);
+    }
+    sheet.appendRow([
+      details.timestamp,
+      details.vendorEmail,
+      details.subject,
+      details.foundInvoices.join(', '),
+      details.notFoundInvoices.join(', '),
+      details.threadUrl
+    ]);
+  } catch (e) {
+    Logger.log(`ERROR: Could not write to log sheet. Details: ${e.message}`);
+    sendErrorNotification(e);
+  }
+}
+
+function sendErrorNotification(error) {
+  const subject = `CRITICAL ERROR: Invoice Processing Script Halted`;
+  const body = `The script stopped due to an error.\n\nMessage: ${error.message}\n\nStack Trace:\n${error.stack}`;
+  try {
+    GmailApp.sendEmail(ADMIN_EMAIL, subject, body);
+  } catch (e) {
+    Logger.log(`[ULTRA CRITICAL] FAILED TO SEND ERROR NOTIFICATION EMAIL. Error: ${e.message}`);
+  }
+}
+
+function sendNotFoundNotification(notFoundInvoices, originalMessage) {
+  const subject = `Action Required: Unfound Invoices from Vendor Inquiry`;
+  const invoiceList = notFoundInvoices.map(r => r.requestedNumber).join(', ');
+  const body = `Unfound invoices:\n\nInvoice(s): ${invoiceList}\nFrom: ${originalMessage.getFrom()}\n\nLink:\n${originalMessage.getThread().getPermalink()}`;
+  GmailApp.sendEmail(ADMIN_EMAIL, subject, body);
+}
+
+function sendInquiryReply(originalMessage, statusResults) {
+  const foundInvoices = statusResults.filter(r => r.found);
+  const notFoundInvoices = statusResults.filter(r => !r.found);
+  const paidInvoices = foundInvoices.filter(item => item.paymentStatus === 'Y');
+  const attachments = [];
+  if (paidInvoices.length > 0) {
+    const pdfBlob = generateCombinedPaymentAdvicePdf(paidInvoices);
+    attachments.push(pdfBlob);
+  }
+  if (notFoundInvoices.length > 0) {
+    sendNotFoundNotification(notFoundInvoices, originalMessage);
+  }
+  const logoUrl = "https://1000logos.net/wp-content/uploads/2021/05/Air-Liquide-logo.png";
+  const logoBlob = UrlFetchApp.fetch(logoUrl).getBlob();
+  let foundRows = foundInvoices.map(item => {
+    const requestedInfo = item.requestedNumber.trim().toUpperCase() !== item.invoiceNumber.trim().toUpperCase() ? `<br><small style="color:#555;">(Matched from your request for ${item.requestedNumber})</small>` : '';
+    const statusStyle = item.paymentStatus === 'Y' ? 'color:#28a745; font-weight:bold;' : 'color:#fd7e14; font-weight:bold;';
+    return `<tr>
+      <td>${item.invoiceNumber}${requestedInfo}</td>
+      <td>${formatDateSafely(item.dueDate)}</td>
+      <td style="${statusStyle}">${item.paymentStatus === 'Y' ? 'Paid' : 'Pending'}</td>
+      <td>${formatDateSafely(item.paymentDate)}</td>
+      <td>${item.amountPaid}</td>
+    </tr>`;
+  }).join('');
+  const attachmentNote = paidInvoices.length >= 0 ? `<p>A remittance advice is attached for paid invoices only.</p>` : '';
+  let notFoundHtml = notFoundInvoices.length > 0 ? 
+    `<div class="section"><p class="section-title">For Your Information</p><p>For the following invoice numbers, we could not find a record in our system: <strong>${notFoundInvoices.map(r => r.requestedNumber).join(', ')}</strong>. This has been forwarded to our Accounts Payable team for further checking.</p></div>` : '';
+  const htmlBody = `
+  <!DOCTYPE html><html><head><style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#f8f9fa;margin:0;padding:20px;}
+    .container{background-color:#ffffff;max-width:700px;margin:auto;border:1px solid #dee2e6;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.08);overflow:hidden;}
+    .header{background-color:#00213F;background-image: linear-gradient(135deg, #003a6c 0%, #00213F 100%);padding:40px;text-align:center;}
+    .header img{max-width:240px;}
+    .header-subtitle{color:#aeb9c2;font-size:14px;margin-top:15px;letter-spacing:0.5px;font-weight:300;}
+    .content{padding:40px;font-size:16px;line-height:1.7;color:#343a40;}
+    h2{color:#00213F;margin-top:0;font-size:24px;}
+    table{width:100%;border-collapse:collapse;margin-top:25px;margin-bottom:25px;}
+    th,td{padding:12px 15px;text-align:left;border-bottom:1px solid #dee2e6;}
+    th{background-color:#f1f3f5;font-size:12px;text-transform:uppercase;color:#495057;letter-spacing:0.5px;}
+    .section{margin-top:30px;padding:20px;background-color:#e7f3fe;border-left:4px solid #2196F3; color:#0d47a1;}
+    .section-title{margin-top:0;font-weight:bold;}
+    .footer{font-size:12px;color:#6c757d;text-align:center;padding:25px;background-color:#f8f9fa;}
+    .manual-review-note{font-size:11px; color:#6c757d; margin-top:20px; padding-top:20px; border-top:1px solid #dee2e6;}
+  </style></head>
+  <body><div class="container">
+    <div class="header">
+      <img src="cid:logo" alt="Air Liquide Logo">
+      <p class="header-subtitle" style="font-size: 1.25rem;">AI powered Intelligent Automation for Accounts Payables</p>
+    </div>
+    <div class="content">
+      <h2>Invoice Status Report</h2><p>Hello,</p><p>Thank you for your inquiry. Please find the status for the requested invoices.</p>
+      ${attachmentNote}
+      ${foundInvoices.length > 0 ? `<table><thead><tr><th>Invoice #</th><th>Due Date</th><th>Status</th><th>Payment Date</th><th>Amount Paid</th></tr></thead><tbody>${foundRows}</tbody></table>` : ''}
+      ${notFoundHtml}
+      <p>Best regards,<br><strong>The Accounts Payable Team</strong></p>
+      <div class="manual-review-note">
+        This is a system-generated message. If you think that the contents of this email are incorrect or you are not satisfied with the reply please request for AP manual review.
+      </div>
+    </div>
+    <div class="footer">This is an automated response generated by the AP Inquiry Bot.</div>
+  </div></body></html>`;
+  originalMessage.reply('', { 
+    htmlBody: htmlBody, 
+    name: 'AP Automation',
+    attachments: attachments,
+    inlineImages: { logo: logoBlob }
+  });
+  Logger.log(`Sent reply to ${originalMessage.getFrom()}`);
+}
+
+function generateCombinedPaymentAdvicePdf(paidInvoices) {
+  const logoUrl = "https://1000logos.net/wp-content/uploads/2021/05/Air-Liquide-logo.png";
+  const logoBlob = UrlFetchApp.fetch(logoUrl).getBlob();
+  const logoBase64 = `data:image/png;base64,${Utilities.base64Encode(logoBlob.getBytes())}`;
+  const today = formatDateSafely(new Date());
+  const firstInvoice = paidInvoices[0];
+  let totalAmount = 0;
+  const invoiceRows = paidInvoices.map(item => {
+    const amount = parseFloat(String(item.amountPaid).replace(/[^0-9.-]+/g,"")) || 0;
+    totalAmount += amount;
+    return `<tr><td>${item.invoiceNumber}</td><td>${formatDateSafely(item.paymentDate)}</td><td>Bank Transfer</td><td style="text-align:right;">${amount.toFixed(2)}</td></tr>`;
+  }).join('');
+  const htmlContent = `
+  <html><head><style>
+    body{font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#333;}
+    .page{width:100%;max-width:800px;margin:auto;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:4px solid #0055A5;}
+    .header img{width:180px;} .header-text{text-align:right;} .header-text h1{margin:0;color:#00213F;font-size:32px;font-weight:bold;}
+    .details{display:flex;justify-content:space-between;margin-top:30px;width:100%;} .details div{width:48%;}
+    .details h3{border-bottom:1px solid #e0e0e0;padding-bottom:8px;font-size:14px;color:#00213F;margin-top:0;font-weight:bold;}
+    p{line-height:1.6;} table{width:100%;border-collapse:collapse;margin-top:25px;font-size:11px;}
+    th,td{padding:10px;text-align:left;} thead tr{background-color:#f0f5fa;}
+    th{border-bottom:2px solid #0055A5;font-weight:bold;} tbody tr td{border-bottom:1px solid #e0e0e0;}
+    .total-row td{font-weight:bold;background-color:#f0f5fa;border-top:2px solid #0055A5;}
+    .footer{margin-top:40px;padding-top:20px;font-size:10px;color:#888;text-align:center;border-top:1px solid #ccc;}
+  </style></head>
+  <body><div class="page">
+    <div class="header">
+      <img src="${logoBase64}" alt="Air Liquide Logo">
+      <div class="header-text"><h1>Payment Advice</h1><p><strong>Date:</strong> ${today}</p><p><strong>Reference ID:</strong> PA-${Date.now()}</p></div>
+    </div>
+    <div class="details">
+      <div><h3>From</h3><p><strong>Air Liquide Global E&C Solutions</strong><br>123 Industrial Way<br>Houston, TX 77001, USA</p></div>
+      <div><h3>To</h3><p><strong>${firstInvoice.vendorName || 'Valued Vendor'}</strong><br>(Address on File)</p></div>
+    </div>
+    <h3 style="margin-top:30px;">Payment Details</h3>
+    <table>
+      <thead><tr><th>Invoice Number</th><th>Payment Date</th><th>Payment Method</th><th style="text-align:right;">Amount Paid</th></tr></thead>
+      <tbody>${invoiceRows}<tr class="total-row"><td colspan="3" style="text-align:right;"><strong>GRAND TOTAL</strong></td><td style="text-align:right;"><strong>${totalAmount.toFixed(2)}</strong></td></tr></tbody>
+    </table>
+    <div class="footer"><p>This is an automated document. If you have any questions, please contact our Accounts Payable department.</p><p><strong>Air Liquide</strong> | www.airliquide.com</p></div>
+  </div></body></html>`;
+  const pdfBlob = Utilities.newBlob(htmlContent, 'text/html', 'Payment_Advice_Consolidated.pdf').getAs('application/pdf');
+  return pdfBlob;
+}
+
+function getOrCreateLabel(labelName) {
+  let label = GmailApp.getUserLabelByName(labelName);
+  if (!label) label = GmailApp.createLabel(labelName);
+  return label;
+}
+
+function getDocAiService() {
+  return OAuth2.createService('DocumentAI').setTokenUrl(SERVICE_ACCOUNT_CREDS.token_uri).setPrivateKey(SERVICE_ACCOUNT_CREDS.private_key).setIssuer(SERVICE_ACCOUNT_CREDS.client_email).setSubject(SERVICE_ACCOUNT_CREDS.client_email).setPropertyStore(PropertiesService.getScriptProperties()).setScope('https://www.googleapis.com/auth/cloud-platform');
+}
+
+function formatDateSafely(dateInput) {
+  if (!dateInput || dateInput === 'N/A' || String(dateInput).trim() === '') return 'N/A';
+  try {
+    return Utilities.formatDate(new Date(dateInput), Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+  } catch (e) {
+    return dateInput;
+  }
+}
