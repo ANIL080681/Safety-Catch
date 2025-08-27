@@ -56,6 +56,21 @@ const mailTransport = nodemailer.createTransport({
     }
 });
 
+// --- Master Data Simulation ---
+// In a real application, this data would come from a database.
+const masterUserData = {
+    "user123": {
+        "name": "Anil Agarwal",
+        "department": "Technical",
+        "location": "Main Plant - Area 1"
+    },
+    "AL123": {
+        "name": "Jaime Leong",
+        "department": "Fit PMO, EAP Cluster",
+        "location": "VISION EXCHANGE, 2 Venture Drive, SINGAPORE"
+    }
+};
+
 function generateCatchEmailHtml(summary, incidentId) {
     // Build HTML summary table
     let summaryTable = '<table border="1" cellpadding="5" cellspacing="0">';
@@ -104,16 +119,23 @@ app.post('/previewCatch', upload.single('attachment'), async (req, res) => {
 });
 
 app.get('/getUserInfo', (req, res) => {
-    // Remove masterUserData validation and checking
-    res.status(404).json({ message: "User lookup not implemented." });
+    const { userId } = req.query;
+    if (masterUserData[userId]) {
+        res.status(200).json(masterUserData[userId]);
+    } else {
+        res.status(404).json({ message: "User not found." });
+    }
 });
 app.post('/submitCatch', upload.single('attachment'), async (req, res) => {
     try {
-        // Accept additional requestor info from frontend
-    const { description, location, subType, catchCategory, approver, department, email, areaDescription } = req.body;
+        // Accept additional requestor info from frontend, now includes userId
+        const { description, location, subType, catchCategory, approver, department, email, areaDescription, userId } = req.body;
         let fileUrl = null;
-        const finalDepartment = department || '';
-        const finalLocation = location || '';
+        
+        // Get user info from master data if it exists
+        const userInfo = masterUserData[userId] || {};
+        const finalDepartment = department || userInfo.department || '';
+        const finalLocation = location || userInfo.location || '';
         const finalEmail = email || '';
         const finalAreaDescription = areaDescription || '';
         if (req.file) {
