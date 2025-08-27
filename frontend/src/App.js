@@ -167,11 +167,6 @@ export default function App() {
 
     // --- Configuration ---
     const BACKEND_URL = 'http://localhost:8080'; // Use local backend for development
-    
-    // 🚨 API Key stored on the frontend for local testing ONLY.
-    // 🚨 REMOVE THIS and move the API call to your backend before deploying.
-    const API_KEY = "AIzaSyCTslbsFtpoSCFbaXl_34SuVM819l_X210"; // Replace with your actual key
-    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
 
     // --- Gemini Function Tools Definition ---
     const tools = [{
@@ -218,6 +213,7 @@ export default function App() {
     const approveCatchOnBackend = async (incidentId) => { const response = await fetch(`${BACKEND_URL}/approveCatch`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ incidentId }) }); if (!response.ok) throw new Error('Failed to approve CATCH via backend.'); return await response.json(); };
     const getStatusFromBackend = async (incidentId) => { const response = await fetch(`${BACKEND_URL}/getCatchStatus?incidentId=${incidentId}`); if (!response.ok) throw new Error('Failed to get CATCH status from backend.'); return await response.json(); };
     const queryBigQueryOnBackend = async (query) => { const response = await fetch(`${BACKEND_URL}/queryBigQuery`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query }) }); if (!response.ok) { const err = await response.json(); throw new Error(err.message || 'Failed to query BigQuery.'); } return await response.json(); };
+    const callGeminiViaBackend = async (contents, tools) => { const response = await fetch(`${BACKEND_URL}/callGemini`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents, tools }) }); if (!response.ok) throw new Error(`Gemini API call failed: ${response.status}`); return await response.json(); };
 
     // --- Utility Functions ---
     const fileToBase64 = (file) => new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); });
@@ -253,15 +249,7 @@ export default function App() {
             }
             const contents = [...history, { role: 'user', parts: userParts }];
 
-            const payload = { contents, tools };
-            const response = await fetch(GEMINI_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) throw new Error(`Gemini API call failed: ${response.status}`);
-            const result = await response.json();
+            const result = await callGeminiViaBackend(contents, tools);
             const firstCandidate = result.candidates?.[0];
             if (!firstCandidate) throw new Error('No response candidate found from Gemini.');
 
@@ -298,13 +286,7 @@ export default function App() {
                     contents.push(firstCandidate.content);
                     contents.push({ role: 'function', parts: [{ functionResponse: { name: functionName, response: { result: functionResult } } }] });
 
-                    const secondResponse = await fetch(GEMINI_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents, tools }),
-                    });
-
-                    const secondResult = await secondResponse.json();
+                    const secondResult = await callGeminiViaBackend(contents, tools);
                     const finalResponseText = secondResult.candidates?.[0]?.content.parts.find(p => p.text)?.text;
                     if (finalResponseText) {
                         setMessages(prev => [...prev, { role: 'model', content: finalResponseText }]);
