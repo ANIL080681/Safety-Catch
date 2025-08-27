@@ -105,7 +105,11 @@ This project follows a standard Git workflow:
 2. **Feature branches**: `feature/*` - New features and improvements
 3. **Fix branches**: `fix/*` or `copilot/fix-*` - Bug fixes and patches
 
-### Common Git Commands
+### Syncing Local Changes to Repository
+
+📖 **For comprehensive instructions on syncing your local file changes to git, see [GIT_SYNC_GUIDE.md](./GIT_SYNC_GUIDE.md)**
+
+### Quick Git Commands
 
 ```bash
 # Check repository status
@@ -125,6 +129,22 @@ git add .
 git commit -m "Descriptive commit message"
 
 # Push changes to remote
+git push origin branch-name
+```
+
+### Basic Sync Workflow
+
+```bash
+# 1. Check what files changed
+git status
+
+# 2. Add your changes
+git add .
+
+# 3. Commit with descriptive message
+git commit -m "Description of changes"
+
+# 4. Push to repository
 git push origin branch-name
 ```
 
