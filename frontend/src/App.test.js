@@ -1,8 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+// Mock scrollIntoView for testing environment
+beforeAll(() => {
+  Element.prototype.scrollIntoView = jest.fn();
+});
+
+test('renders EAP CATCH Submission Bot', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const titleElement = screen.getByText(/EAP CATCH Submission Bot/i);
+  expect(titleElement).toBeInTheDocument();
 });
